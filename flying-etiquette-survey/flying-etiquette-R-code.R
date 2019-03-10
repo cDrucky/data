@@ -1,6 +1,7 @@
 library(ggplot2)
-
-data <- read.csv(file="D:/School/Data Mining/flying-etiquette.csv",header = TRUE, sep=",")
+library(reshape2)
+library(dplyr)
+data <- read.csv(file="~/Projects/flying-etiquette/data/flying-etiquette-survey/flying-etiquette.csv",header = TRUE, sep=",")
 
 
 
@@ -26,4 +27,19 @@ barplot(rudeMen)
 rudeWomen <- table(data$Is.itrude.to.recline.your.seat.on.a.plane.[which(data$Gender == "Female")])
 barplot(rudeWomen)
 
-p <- ggplot(data, aes(data$Is.itrude.to.recline.your.seat.on.a.plane.)) + geom_bar(aes(data$Gender))
+genderDF = data.frame(data$Is.itrude.to.recline.your.seat.on.a.plane.,data$Gender)
+genderDF = genderDF[!(genderDF$data.Gender == ""),]
+
+
+
+gg <- melt(genderDF, id="data.Gender")
+bar <- group_by(gg,variable,data.Gender)
+ggplot(gg,aes(x=data.Gender, y = value, fill=factor(data.Gender))) + 
+  geom_bar(position="dodge",stat="identity")
+
+ggplot(gg, aes(x=variable, y =value, fill=factor(data.Gender))) +
+  stat_summary(fun.y= mean, geom="bar",position=position_dodge(1)) + 
+  scale_color_discrete("Gender")
+  stat_summary(fun.ymin = min, fun.ymax = max, geom="errorbar",
+               color="grey80",position = position_dodge(1), width=.2)
+                                                                                                                                                                        
